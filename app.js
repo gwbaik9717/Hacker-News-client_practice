@@ -19,8 +19,21 @@ function newsFeed(){
     const newsList = [];
     const newsFeed = getData(NEWS_URL);
     const maxPage = newsFeed.length/10;
+    let template = `
+    <div class="container mx-auto p-4">
+      <h1>Hacker News</h1>
+      <ul>
+        {{__news_feed__}}
+      </ul>
+
+      <div>
+        <a href="#/page/{{__prev_page__}}">이전 페이지</a>
+        <a href="#/page/{{__next_page__}}">다음 페이지</a>
+      </div>
+    </div>
+    `;
     
-    newsList.push('<ul>');
+    //newsList.push('<ul>');
 
     for(let i= (store.currentPage-1) * 10; i < store.currentPage * 10; i++){
         newsList.push(`
@@ -29,29 +42,37 @@ function newsFeed(){
         </li>
         `);
     }
-    newsList.push('</ul>');
-    newsList.push(`
-    <div>
-     <a href="#/page/${store.currentPage > 1 ? store.currentPage - 1 : 1}">이전 페이지</a>
-     <a href="#/page/${store.currentPage < Math.ceil(maxPage) ? store.currentPage + 1 : Math.ceil(maxPage)}">다음 페이지</a>
-    </div>
-    `);
 
-    container.innerHTML = newsList.join('');
+    template = template.replace('{{__news_feed__}}', newsList.join(''));
+    template = template.replace('{{__prev_page__}}', store.currentPage > 1 ? store.currentPage - 1 : 1);
+    template = template.replace('{{__next_page__}}', store.currentPage < Math.ceil(maxPage) ? store.currentPage + 1 : Math.ceil(maxPage));
+
+    container.innerHTML = template;
 }
 
 function newsDetail(){
     const id = location.hash.substr(7); //location은 객체가 연결된 URL을 표현
     const newsContent = getData(CONTENT_URL.replace('@id', id));
+    let template = `
+    <h1>${newsContent.title}</h1>
+    
+    <div>
+    <a href="#/page/${store.currentPage}">목록으로</a>
+
+    {{__comments__}}
+    </div>
+    `
+    
+    container.innerHTML = template;
 
 
-    container.innerHTML = `
+    /*container.innerHTML = `
     <h1>${newsContent.title}</h1>
     
     <div>
     <a href="#/page/${store.currentPage}">목록으로</a>
     </div>
-    `;
+    `;*/
 }
 
 function router(){
