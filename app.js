@@ -61,9 +61,26 @@ function newsDetail(){
 
     {{__comments__}}
     </div>
-    `
+    `;
+
+    function makeComment(comments, called=0){
+        const commentString = [];
+
+        for(let i=0; i<comments.length; i++){
+            commentString.push(`
+            hello
+            `);
+
+            if(comments[i].comments.length >0 ){
+                commentString.push(makeComment(comments[i].comments, called+1));
+            }
+        }
+
+        return commentString.join('');
+
+    }
     
-    container.innerHTML = template;
+    container.innerHTML = template.replace('{{__comments__}}', makeComment(newsContent.comments));
 
 
     /*container.innerHTML = `
