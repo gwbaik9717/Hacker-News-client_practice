@@ -5,7 +5,10 @@ const CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
 const container = document.getElementById('root');
 const store = {
     currentPage: 1,
+    feeds: [],
 }
+
+console.log(getData(NEWS_URL));
 
 
 function getData(url){
@@ -15,9 +18,17 @@ function getData(url){
     return JSON.parse(ajax.response);
 }
 
+function makeFeeds(feeds){
+    for(let i=0; i<feeds.length; i++){
+        feeds[i].read = false;
+    }
+
+    return feeds;
+}
+
 function newsFeed(){
     const newsList = [];
-    const newsFeed = getData(NEWS_URL);
+    let newsFeed = store.feeds;
     const maxPage = newsFeed.length/10;
     let template = `
     <div class="bg-gray-600 min-h-screen">
@@ -43,11 +54,16 @@ function newsFeed(){
       </div>
     </div>
     `;
+
+    // 처음 실행시 데이터 불러오기
+    if(newsFeed.length === 0){
+        newsFeed = store.feeds = makeFeeds(getData(NEWS_URL));
+    }
     
 
     for(let i= (store.currentPage-1) * 10; i < store.currentPage * 10; i++){
         newsList.push(`
-        <div class="p-6 bg-white mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100">
+        <div class="p-6 ${newsFeed[i].read === true ? 'bg-yellow-500' : 'bg-white'} mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100">
         <div class="flex">
           <div class="flex-auto">
             <a href="#/show/${newsFeed[i].id}">${newsFeed[i].title}</a>  
@@ -86,6 +102,13 @@ function newsDetail(){
     {{__comments__}}
     </div>
     `;
+
+    for(let i=0; i< store.feeds.length; i++){
+        if(store.feeds[i].id === Number(id)){
+            store.feeds[i].read = true;
+            break;
+        }
+    }
 
     function makeComment(comments, called=0){
         const commentString = [];
