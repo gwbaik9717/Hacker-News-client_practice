@@ -37,15 +37,35 @@ const store: Store = {
     feeds: [],
 }
 
-console.log(getData(NEWS_URL));
+class Api{
+  url: string;
+  ajax: XMLHttpRequest;
 
+  constructor(url: string) {
+    this.url = url;
+    this.ajax = new XMLHttpRequest();
+  }
 
-function getData<AjaxResponse>(url:string): AjaxResponse{
-    ajax.open('GET', url, false);
-    ajax.send();
+  protected getRequest<AjaxResponse>(): AjaxResponse{
+    this.ajax.open('GET', this.url, false);
+    this.ajax.send();
 
-    return JSON.parse(ajax.response);
+    return JSON.parse(this.ajax.response);
+  }
 }
+
+class NewsFeedApi extends Api{
+  getData(): NewsFeed[] {
+    return this.getRequest<NewsFeed[]>();
+  }
+}
+
+class NewsDetailApi extends Api{
+  getData(): NewsDetail {
+    return this.getRequest<NewsDetail>();
+  }
+}
+
 
 function makeFeeds(feeds: NewsFeed[]): NewsFeed[]{
     for(let i=0; i<feeds.length; i++){
@@ -66,6 +86,7 @@ function updateView(html:string): void{
 }
 
 function newsFeed(): void{
+    const api = new NewsFeedApi(NEWS_URL);
     const newsList = [];
     let newsFeed: NewsFeed[] = store.feeds;
     const maxPage = newsFeed.length/10;
@@ -96,7 +117,7 @@ function newsFeed(): void{
 
     // 처음 실행시 데이터 불러오기
     if(newsFeed.length === 0){
-        newsFeed = store.feeds = makeFeeds(getData<NewsFeed[]>(NEWS_URL));
+        newsFeed = store.feeds = makeFeeds(api.getData());
     }
     
 
@@ -131,7 +152,8 @@ function newsFeed(): void{
 
 function newsDetail(): void{
     const id = location.hash.substr(7); //location은 객체가 연결된 URL을 표현
-    const newsContent = getData<NewsDetail>(CONTENT_URL.replace('@id', id));
+    const api = new NewsDetailApi(CONTENT_URL.replace('@id', id));
+    const newsContent = api.getData();
     let template = `
     <h1>${newsContent.title}</h1>
     
