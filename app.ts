@@ -1,30 +1,30 @@
-type Store = {
+interface Store {
   currentPage: number;
   feeds: NewsFeed[];
 }
 
-type News = {
-  id: number;
-  title: string;
-  user: string;
-  time_ago: string;
-  url: string;
-  content: string;
+interface News {
+  readonly id: number;
+  readonly title: string;
+  readonly user: string;
+  readonly time_ago: string;
+  readonly url: string;
+  readonly content: string;
 }
 
-type NewsFeed = News & {
-  comments_count: number;
-  points: number;
+interface NewsFeed extends News{
+  readonly comments_count: number;
+  readonly points: number;
   read?: boolean;
 }
 
-type NewsDetail = News & {
-  comments: NewsComment[];
+interface NewsDetail extends News{
+  readonly comments: NewsComment[];
 }
 
-type NewsComment = News & { 
-  level: number;
-  comments: NewsComment[];
+interface NewsComment extends News{ 
+  readonly level: number;
+  readonly comments: NewsComment[];
 }
 
 const ajax: XMLHttpRequest = new XMLHttpRequest();
